@@ -1,3 +1,4 @@
+# Refence from: https://triton-lang.org/main/getting-started/tutorials/05-layer-norm.html
 from __future__ import annotations
 import torch
 import triton
@@ -8,7 +9,7 @@ def _layernorm_fwd_kernel(
     X, W, B, 
     Y, Mean, Rstd,
     N, EPS: tl.constexpr, BLOCK_N: tl.constexpr
-    ):
+):
     pid = tl.program_id(0)
     row_offset = pid * N
     

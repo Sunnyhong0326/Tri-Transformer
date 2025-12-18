@@ -13,3 +13,7 @@ This repo implements core Transformer ops as custom kernels and compares them ag
 ## Baselines
 
 Each custom op is validated and benchmarked against the corresponding PyTorch implementation to ensure the kernel is both correct and worth using.
+
+## Reference code
+- [Triton Tutorial](https://triton-lang.org/main/getting-started/tutorials/index.html)
+- [Turbo Diffusion (Sparse Linear Attention kernel)](https://github.com/thu-ml/TurboDiffusion/blob/main/turbodiffusion/SLA/kernel.py)
