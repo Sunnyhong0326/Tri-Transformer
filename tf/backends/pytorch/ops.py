@@ -32,4 +32,7 @@ class PyTorchOps:
         return out
 
     def layernorm(self, x: torch.Tensor, weight: torch.Tensor, bias: torch.Tensor, eps: float) -> torch.Tensor:
-        return F.layer_norm(x, normalized_shape=(x.shape[-1],), weight=weight, bias=bias, eps=eps)
+        mean = x.mean(dim=-1, keepdim=True)
+        var  = x.var(dim=-1, keepdim=True, unbiased=False)
+        xhat = (x - mean) * torch.rsqrt(var + eps)
+        return xhat * weight + bias

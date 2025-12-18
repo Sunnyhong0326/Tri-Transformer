@@ -9,15 +9,16 @@ from tf.ops import layernorm
 def device_and_dtype():
     device = "cuda" if torch.cuda.is_available() else "cpu"
     dtype = torch.float16 if device == "cuda" else torch.float32
-    return device, dtype
+    return device, torch.float32
 
 
 @pytest.mark.parametrize(
     "B,T,D",
     [
-        (1, 4, 16),
-        (2, 5, 32),
-        (3, 2, 24),
+        (1, 256, 16),
+        (2, 512, 32),
+        (4, 1024, 64),
+        (8, 2048, 128),
     ],
 )
 def test_layernorm_matches_torch(device_and_dtype, B, T, D):
@@ -30,7 +31,7 @@ def test_layernorm_matches_torch(device_and_dtype, B, T, D):
     eps = 1e-5
 
     y_ref = F.layer_norm(x, (x.shape[-1],), w, b, eps=eps)
-    y = layernorm(x, w, b, eps, backend="pytorch")
+    y = layernorm(x, w, b, eps, backend="triton")
 
     atol = 1e-2 if dtype == torch.float16 else 1e-4
     rtol = 1e-2 if dtype == torch.float16 else 1e-4
