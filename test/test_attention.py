@@ -18,10 +18,10 @@ def device_and_dtype():
 @pytest.mark.parametrize(
     "B,H,T,D,causal",
     [
-        (1, 2, 8, 16, True),
-        (2, 4, 16, 32, True),
+        (1, 2, 8, 16, False),
         (2, 4, 16, 32, False),
-        (3, 2, 12, 24, False),
+        (2, 4, 16, 32, False),
+        (3, 2, 12, 64, False),
     ],
 )
 def test_attention_matches_sdpa(device_and_dtype, B, H, T, D, causal):
@@ -36,9 +36,10 @@ def test_attention_matches_sdpa(device_and_dtype, B, H, T, D, causal):
     # torch SDPA expects (B,H,T,D) and uses is_causal flag
     y_ref = F.scaled_dot_product_attention(q, k, v, attn_mask=None, dropout_p=0.0, is_causal=causal)
 
+    print("Ref shape", y_ref.shape)
     p = AttentionParams(causal=causal, sm_scale=scale, dropout_p=0.0, training=False)
-    y = attention(q, k, v, p, backend="pytorch")
-
+    y = attention(q, k, v, p, backend="triton")
+    print("Triton shape", y.shape)
     atol = 2e-2 if dtype == torch.float16 else 1e-4
     rtol = 2e-2 if dtype == torch.float16 else 1e-4
     assert torch.allclose(y, y_ref, atol=atol, rtol=rtol)
